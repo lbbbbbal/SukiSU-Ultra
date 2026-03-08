@@ -32,3 +32,31 @@
 >
 > - 使用时，您只需填写版本号的前两部分，例如 `5.10`、`6.1`...
 > - 使用前请确保您了解处理器名称、内核版本等信息。
+
+
+## 已有 `boot.img` / `init_boot.img` 时快速打补丁（GKI 设备）
+
+如果你已经从当前系统版本提取了 `boot.img` 和 `init_boot.img`，可以直接在本仓库使用脚本生成可刷入镜像：
+
+```bash
+bash scripts/patch_xiaomi_gki.sh /path/to/boot.img /path/to/init_boot.img ./out
+```
+
+脚本会自动调用 `ksud boot-patch` 分别处理两个镜像，并输出：
+
+- `out/boot_patched.img`
+- `out/init_boot_patched.img`
+
+随后在 fastboot 模式刷入：
+
+```bash
+fastboot flash boot out/boot_patched.img
+fastboot flash init_boot out/init_boot_patched.img
+fastboot reboot
+```
+
+> [!Warning]
+>
+> - 请确保镜像与当前系统版本完全一致（尤其是小米机型跨版本时）。
+> - 仅在已解锁 Bootloader 的设备上操作，并提前备份原始镜像。
+> - 如果设备启用了 AVB 校验，请按你的设备方案处理 vbmeta（例如使用禁用校验参数）。
